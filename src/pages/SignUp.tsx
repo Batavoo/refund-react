@@ -42,7 +42,7 @@ export function SignUp() {
 
       <Input
         required
-        legend="Confirmar s enha"
+        legend="Confirmar senha"
         type="password"
         placeholder="123456"
         onChange={(event) => setPasswordConfirm(event.target.value)}
