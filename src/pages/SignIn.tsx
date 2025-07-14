@@ -1,6 +1,9 @@
 import { useActionState } from "react";
 import { z, ZodError } from "zod";
 
+import { api } from "../services/api";
+import { AxiosError } from "axios";
+
 import { Input } from "../components/Input";
 import { Button } from "../components/Button";
 import { email } from "zod";
@@ -20,12 +23,17 @@ export function SignIn() {
         password: formData.get("password"),
       });
 
-      console.log(data);
+      const response = await api.post("/sessions", data);
+      console.log(response.data);
     } catch (error) {
       console.log(error);
 
       if (error instanceof ZodError) {
         return { message: error.issues[0].message };
+      }
+
+      if (error instanceof AxiosError) {
+        return { message: error.response?.data.message };
       }
 
       return { message: "Não foi possível entrar" };
