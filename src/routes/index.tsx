@@ -8,21 +8,11 @@ import { AuthRoutes } from "./AuthRoutes";
 import { EmployeeRoutes } from "./EmployeeRoutes";
 import { ManagerRoutes } from "./ManagerRoutes";
 
-const isLoading = false;
-//const session = undefined;
-
-const session = {
-  user: {
-    role: "",
-  },
-};
-
 export function Routes() {
   const context = useAuth();
-  console.log(context.session?.user.role);
 
   function Route() {
-    switch (session?.user.role) {
+    switch (context.session?.user.role) {
       case "employee":
         return <EmployeeRoutes />;
 
@@ -33,7 +23,7 @@ export function Routes() {
     }
   }
 
-  if (isLoading) {
+  if (context.isLoading) {
     return <Loading />;
   }
 
