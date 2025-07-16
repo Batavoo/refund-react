@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router";
+import { ZodError, z } from "zod";
+import { AxiosError } from "axios";
 
+import { api } from "../services/api";
 import fileSvg from "../assets/file.svg";
 import { CATEGORIES, CATEGORIES_KEYS } from "../utils/categories";
 
@@ -9,25 +12,72 @@ import { InputSelect } from "../components/InputSelect";
 import { Upload } from "../components/Upload";
 import { Button } from "../components/Button";
 
+const refundSchema = z.object({
+  name: z
+    .string()
+    .min(3, { message: "Informe um nome claro para a sua solicitação" }),
+  category: z.string().min(1, { message: "Informe a categoria" }),
+  amount: z.coerce
+    .number({ message: "Informe um valor válido" })
+    .positive({ message: "Informe um valor válido e superior a 0" }),
+});
+
 export function Refund() {
-  const [name, setName] = useState("Teste");
-  const [amount, setAmount] = useState("34");
-  const [category, setCategory] = useState("Alimentação");
+  const [name, setName] = useState("");
+  const [amount, setAmount] = useState("");
+  const [category, setCategory] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [filename, setFilename] = useState<File | null>(null);
+  const [file, setFile] = useState<File | null>(null);
 
   const navigate = useNavigate();
   const params = useParams<{ id: string }>();
 
-  function onSubmit(e: React.FormEvent) {
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
 
     if (params.id) {
       return navigate(-1);
     }
 
-    console.log(name, amount, category, filename);
-    navigate("/confirm", { state: { fromSubmit: true } });
+    try {
+      setIsLoading(true);
+
+      if (!file) {
+        return alert("Selecione um arquivo de comprovante");
+      }
+
+      const fileUploadForm = new FormData();
+      fileUploadForm.append("file", file);
+
+      const response = await api.post("/uploads", fileUploadForm);
+
+      const data = refundSchema.parse({
+        name,
+        category,
+        amount: amount.replace(",", "."),
+      });
+
+      await api.post("/refunds", {
+        ...data,
+        filename: response.data.filename,
+      });
+
+      navigate("/confirm", { state: { fromSubmit: true } });
+    } catch (error) {
+      console.log(error);
+
+      if (error instanceof ZodError) {
+        return alert(error.issues[0].message);
+      }
+
+      if (error instanceof AxiosError) {
+        return alert(error.response?.data.message);
+      }
+
+      alert("Não foi possível realizar a solicitação");
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -90,9 +140,9 @@ export function Refund() {
       ) : (
         <Upload
           legend="Comprovante"
-          filename={filename && filename.name}
+          filename={file && file.name}
           onChange={(event) =>
-            event.target.files && setFilename(event.target.files[0])
+            event.target.files && setFile(event.target.files[0])
           }
           disabled={!!params.id}
         />
