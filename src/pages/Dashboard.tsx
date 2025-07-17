@@ -13,29 +13,31 @@ import { RefundItem, type RefundItemProps } from "../components/RefundItem";
 import { CATEGORIES } from "../utils/categories";
 import { Pagination } from "../components/Pagination";
 
-const REFUND_EXAMPLE = {
-  id: "123",
-  name: "Gustavo",
-  category: "Transporte",
-  amount: formatCurrency(34.5),
-  categoryImg: CATEGORIES["transport"].icon,
-};
-
 const PER_PAGE = 5;
 
 export function Dashboard() {
   const [name, setName] = useState("");
   const [page, setPage] = useState(1);
   const [totalOfPage, setTotalOfPage] = useState(0);
-  const [refunds, setRefunds] = useState<RefundItemProps[]>([REFUND_EXAMPLE]);
+  const [refunds, setRefunds] = useState<RefundItemProps[]>([]);
 
   async function fetchRefunds() {
     try {
-      const response = await api.get(
+      const response = await api.get<RefundsPaginationAPIResponse>(
         `/refunds?name=${name.trim()}&page=${page}&perPage=${PER_PAGE}`
       );
 
-      console.log(response.data);
+      setRefunds(
+        response.data.refunds.map((refund) => ({
+          id: refund.id,
+          name: refund.user.name,
+          description: refund.name,
+          amount: formatCurrency(refund.amount),
+          categoryImg: CATEGORIES[refund.category].icon,
+        }))
+      );
+
+      setTotalOfPage(response.data.pagination.totalPages);
     } catch (error) {
       console.log(error);
 
@@ -45,6 +47,12 @@ export function Dashboard() {
 
       alert("Não foi possível carregar");
     }
+  }
+
+  function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+
+    fetchRefunds();
   }
 
   function handlePagination(action: "next" | "previous") {
@@ -70,7 +78,7 @@ export function Dashboard() {
       <h1 className="text-gray-100 font-bold text-xl flex-1">Solicitações</h1>
 
       <form
-        onSubmit={fetchRefunds}
+        onSubmit={onSubmit}
         className="flex flex-1 items-center justify-between pb-6 border-b-[1px] border-b-gray-400 md:flex-row gap-2 mt-6"
       >
         <Input
