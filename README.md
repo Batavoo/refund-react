@@ -84,3 +84,7 @@ No arquivo [`package.json`](package.json), você encontrará os seguintes script
 - `npm run dev`: Inicia o servidor de desenvolvimento com Vite.
 - `npm run build`: Compila e otimiza a aplicação para produção.
 - `npm run preview`: Inicia um servidor local para visualizar a build de produção.
+
+---
+
+<p align="center">Made with ❤️ by <a href="https://www.linkedin.com/in/gustavo-santos-744549234/">Gustavo Arruda</a></p>
