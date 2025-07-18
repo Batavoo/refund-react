@@ -5,8 +5,8 @@
 ![Vite](https://img.shields.io/badge/vite-%23646CFF.svg?style=for-the-badge&logo=vite&logoColor=white)
 ![TailwindCSS](https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white)
 
-![Screenshot da Dashboard do sistema](src\assets\app1.png)
-![Screenshot da Solicitação de reembolso](src\assets\app2.png)
+![Screenshot da Dashboard do sistema](src/assets/app1.png)
+![Screenshot da Solicitação de reembolso](src/assets/app2.png)
 
 ## 📖 Sobre
 
